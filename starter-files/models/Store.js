@@ -1,4 +1,3 @@
-const { ServerDescription } = require('mongodb');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const slug = require('slugs');
@@ -18,9 +17,9 @@ const storeSchema = new mongoose.Schema({
 });
 
 storeSchema.pre('save', function (next) {
-  if (!this.ismodified('name')) {
+  if (!this.isModified('name')) {
     next(); // skip it
-    return; // stop this presave function from running
+    return; // stop this pre-save function from running
   }
   this.slug = slug(this.name);
   next();
