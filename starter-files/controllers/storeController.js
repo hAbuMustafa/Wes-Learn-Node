@@ -84,3 +84,15 @@ exports.getStoreBySlug = async (req, res, next) => {
   if (!store) return next();
   res.render('store', { store, title: store.name });
 };
+
+exports.getStoresByTag = async (req, res) => {
+  const tag = req.params.tag;
+  // we can't use Store.find() because we aren't looking for a document (a record, per se) but rather for an aggregateed result. So we make our own aggregator in the schema
+  // const tags = await Store.getTagsList();
+  // Since we need to fire two queries in the same time (without needing to wait for one to finish before the next one kicks off) we should line up promises in a Promise.all
+  const tagsPromise = await Store.getTagsList();
+  const storesPromise = await Store.find({ tags: tag || { $exists: true } }); // if there were no tag supplied in the url, just give me all items that have a tag
+  const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
+
+  res.render('tag', { tags, stores, title: 'Tags', tag });
+};
