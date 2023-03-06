@@ -46,3 +46,30 @@ exports.register = async (req, res, next) => {
   await register(user, req.body.password);
   next(); // Pass along to authController.login
 };
+
+exports.account = (req, res) => {
+  res.render('account', { title: 'Account Details' });
+};
+
+exports.updateAccount = async (req, res) => {
+  const updates = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+
+  const user = await User.findOneAndUpdate(
+    {
+      _id: req.user._id, // here we use req.user not req.body because we wanna make sure the data we have is fpr the actual user editing his own profile, not from somemalicous acts, because he can send a new id in the body
+    },
+    { $set: updates },
+    {
+      new: true, // asks monogodb to return the newly edited/created user
+      runValidators: true,
+      context: 'query',
+    }
+  );
+
+  req.flash('success', 'Successfully updated the account!');
+
+  res.redirect('back'); // redirects to the previous page
+};
