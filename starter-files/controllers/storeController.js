@@ -53,11 +53,17 @@ exports.getStores = async (req, res) => {
   res.render('stores', { title: 'Stores', stores });
 };
 
+const confirmOwner = (store, user) => {
+  if (!store.author.equals(user._id)) {
+    throw Error('You must own a store in order to edit it.');
+  }
+};
+
 exports.editStore = async (req, res) => {
   // 1. Get store data from DB
   const store = await Store.findOne({ _id: req.params.id });
   // 2. Confirm the user owns the store
-  //TODO
+  confirmOwner(store, req.user);
 
   // 3. Render out the edit form
   res.render('editStore', { title: `Edit ${store.name}`, store });
@@ -80,7 +86,7 @@ exports.updateStore = async (req, res) => {
 };
 
 exports.getStoreBySlug = async (req, res, next) => {
-  const store = await Store.findOne({ slug: req.params.slug });
+  const store = await Store.findOne({ slug: req.params.slug }).populate('author'); // the '.populate' property expands the selected field to its content. Meaning that it will expand the `author` field in this object from just the `id` of the author to a full object containing author data.
   console.log(store);
   if (!store) return next();
   res.render('store', { store, title: store.name });
