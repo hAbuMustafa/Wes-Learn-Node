@@ -1,5 +1,7 @@
 export default function autocomplete(input, latInput, lngInput) {
-  const dropdown = new google.maps.places.Autocomplete(input);
+  const dropdown = new google.maps.places.Autocomplete(input, {
+    fields: ['formatted_address', 'geometry', 'name'],
+  });
 
   dropdown.addListener('place_changed', () => {
     const place = dropdown.getPlace();
