@@ -87,7 +87,7 @@ exports.updateStore = async (req, res) => {
 };
 
 exports.getStoreBySlug = async (req, res, next) => {
-  const store = await Store.findOne({ slug: req.params.slug }).populate('author'); // the '.populate' property expands the selected field to its content. Meaning that it will expand the `author` field in this object from just the `id` of the author to a full object containing author data.
+  const store = await Store.findOne({ slug: req.params.slug }).populate('author reviews'); // the '.populate' property expands the selected field to its content. Meaning that it will expand the `author` field in this object from just the `id` of the author to a full object containing author data.
   if (!store) return next();
   res.render('store', { store, title: store.name });
 };
