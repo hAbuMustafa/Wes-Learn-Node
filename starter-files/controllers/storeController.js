@@ -49,9 +49,29 @@ exports.createStore = async (req, res) => {
 };
 
 exports.getStores = async (req, res) => {
+  const page = req.params.page || 1;
+  const limit = 4;
+  const skip = page * limit - limit;
+
   // 1. Query the DB for all available stores
-  const stores = await Store.find();
-  res.render('stores', { title: 'Stores', stores });
+  const storesPromise = Store.find().sort({ created: 'desc' }).skip(skip).limit(limit);
+
+  const countPromise = Store.count();
+
+  const [stores, count] = await Promise.all([storesPromise, countPromise]);
+
+  const pages = Math.ceil(count / limit);
+
+  if (!stores.length && skip) {
+    req.flash(
+      'info',
+      `Dude! you requested a page that doesn't exist. Where did you get that "${page}" from?! Anyway, you are redirected to page ${pages}.`
+    );
+    res.redirect(`/stores/page/${page}`);
+    return;
+  }
+
+  res.render('stores', { title: 'Stores', stores, page, pages, count });
 };
 
 const confirmOwner = (store, user) => {
@@ -162,4 +182,9 @@ exports.getHearts = async (req, res) => {
     _id: { $in: req.user.hearts },
   });
   res.render('stores', { title: 'Hearted Stores', stores });
+};
+
+exports.getTopStores = async (req, res) => {
+  const stores = await Store.getTopStores();
+  res.render('topStores', { stores, title: `★ Top Stores!` });
 };
