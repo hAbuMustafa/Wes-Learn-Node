@@ -67,7 +67,7 @@ exports.getStores = async (req, res) => {
       'info',
       `Dude! you requested a page that doesn't exist. Where did you get that "${page}" from?! Anyway, you are redirected to page ${pages}.`
     );
-    res.redirect(`/stores/page/${page}`);
+    res.redirect(`/stores/page/${pages}`);
     return;
   }
 
